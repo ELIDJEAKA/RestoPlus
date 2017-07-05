@@ -9,18 +9,67 @@ const bot = new BootBot({
   appSecret: 'a5d353d3d19ff6cc270ed0010b12ab1b'
 });
 
+// SET A GETSTARTED BUTTON
+bot.setGetStartedButton((payload, chat) => {
+  const welcome1 = `Bienvenue à Resto+ ...`;
+  const welcome2 = `Type START or PLAY to join the challenge!`;
+  const options = { typing: true };
+  chat.say(welcome1, options)
+    .then(() => chat.say(welcome2, options));
+});
+
+// SET A PERSISTENT MENU
+bot.setPersistentMenu([
+
+  {
+    title: 'Plats',
+    type: 'nested',
+    call_to_actions: [
+      {
+        title: 'Entrée',
+        type: 'postback',
+        payload: 'ENTREE_PAYLOAD'
+      },
+      {
+        title: 'Resistance',
+        type: 'postback',
+        payload: 'RESISTANCE_PAYLOAD'
+      },
+      {
+        title: 'Dessert',
+        type: 'postback',
+        payload: 'DESSERT_PAYLOAD'
+      },
+    ]
+  },
+  {
+    title: 'A Propos',
+    type: 'postback',
+    payload: 'PROPOS_PAYLOAD'
+  },
+  {
+    title: 'Page Facebook',
+    type: 'web_url',
+    url: 'https://www.facebook.com/RestoPluss/'
+  }
+])
+
+
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-app.post('/menu', function (req, res) {
+app.post('/', function (req, res) {
     try {
-
         if (req.body) {
-                console.log(req.body.originalRequest.data.sender.id)
+                console.log(req.body)
+                let requestBody = req.body;
+                if(requestBody.result.resolvedQuery.toLowerCase() == 'entrée' || requestBody.result.resolvedQuery.toLowerCase() == 'entree')
+                {
+                  bot.sendTextMessage(req.body.originalRequest.data.sender.id,'cool');
+                  console.log(requestBody.result.resolvedQuery)
+                }
               }
-
-
         } catch (err) {
                 console.error("Can't process request", err);
 
@@ -32,53 +81,12 @@ app.post('/menu', function (req, res) {
                 });
             }
         });
-// SET A PERSISTENT MENU
-        bot.setPersistentMenu([
-
-          {
-            title: 'Menu',
-            type: 'nested',
-            call_to_actions: [
-              {
-                title: 'Entrée',
-                type: 'postback',
-                payload: 'ENTREE_PAYLOAD'
-              },
-              {
-                title: 'Resistance',
-                type: 'postback',
-                payload: 'rESISTANCE_PAYLOAD'
-              },
-              {
-                title: 'Dessert',
-                type: 'postback',
-                payload: 'DESSERT_PAYLOAD'
-              },
-            ]
-          },
-          {
-            title: 'A Propos',
-            type: 'postback',
-            payload: 'PROPOS_PAYLOAD'
-          },
-          {
-            title: 'Page Facebook',
-            type: 'web_url',
-            url: 'https://www.facebook.com/RestoPluss/'
-          }
-        ])
 
 
 
 
-// SET A GETSTARTED BUTTON
 
-bot.setGetStartedButton((payload, chat) => {
-  chat.sendMessage('Welcome to BootBot. What are you looking for?');
-});
-
-
-
+//bot.start();
 app.listen((process.env.PORT || 3000), function () {
     console.log("Server listening on port 3000");
 });
